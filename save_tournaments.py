@@ -31,9 +31,10 @@ def parse_tournament_info(soup):
     table = soup.find('table')
     rows = table.find_all('tr')
 
-    mers_weight_text = __parse_tournament_info_cell(rows[6])
-    index_of_days_text = mers_weight_text.find('Days')
-    days = int(mers_weight_text[index_of_days_text + 5])
+    mers_weight_text = __parse_tournament_info_cell(rows[6]).replace(',','.')
+    index_of_open_bracket = mers_weight_text.find('(')
+    days = int(mers_weight_text[index_of_open_bracket + 6])
+    weight = float(mers_weight_text[:index_of_open_bracket])
 
     return {
         'ema_id': __parse_tournament_info_cell(rows[1]),
@@ -42,6 +43,7 @@ def parse_tournament_info(soup):
         'country': __get_country_from_img_link(rows[3].find_all('td')[1]),
         'date': __parse_tournament_info_date(rows[4]),
         'players': __parse_tournament_info_cell(rows[5]),
+        'weight': weight,
         'days': days
     }
 
@@ -99,11 +101,11 @@ def create_player(cur, first_name, last_name, country, ema_number):
 
 def create_tournament(cur, tournament_info):
     cur.execute(
-        """insert into tournaments (ema_id, name, place, country, date, players, days) 
-        values (%s, %s, %s, %s, %s, %s, %s) returning id""",
+        """insert into tournaments (ema_id, name, place, country, date, players, weight, days) 
+        values (%s, %s, %s, %s, %s, %s, %s, %s) returning id""",
         (tournament_info['ema_id'], tournament_info['name'], tournament_info['place'],
          tournament_info['country'], tournament_info['date'],
-         tournament_info['players'], tournament_info['days'])
+         tournament_info['players'], tournament_info['weight'], tournament_info['days'])
     )
     return cur.fetchone()[0]
 

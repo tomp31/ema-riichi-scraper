@@ -6,6 +6,7 @@ create table tournaments(
     country text,
     date date not null,
     players int,
+    weight numeric(2,1),
     days int
 );
 
@@ -14,7 +15,9 @@ create table players(
     ema_number text unique,
     first_name text,
     last_name text,
-    country text
+    country text,
+    mers_ranking numeric(6,2) null,
+    rukrs_ranking numeric(6,2) null
 );
 
 create table tournament_results(
