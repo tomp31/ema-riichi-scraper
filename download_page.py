@@ -1,7 +1,7 @@
 import requests, os, argparse
 
 def save_page(url, file_name):
-    os.makedirs("pages", exist_ok=True)
+    os.makedirs("pages/tournaments", exist_ok=True)
     res = requests.get(url)
     res.raise_for_status()
     with open(f'pages/{file_name}.html', 'wb') as file:
