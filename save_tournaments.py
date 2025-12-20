@@ -30,15 +30,19 @@ def __get_country_from_img_link(parent):
 def parse_tournament_info(soup):
     table = soup.find('table')
     rows = table.find_all('tr')
+
+    mers_weight_text = __parse_tournament_info_cell(rows[6])
+    index_of_days_text = mers_weight_text.find('Days')
+    days = int(mers_weight_text[index_of_days_text + 5])
+
     return {
-        'number': __parse_tournament_info_cell(rows[1]),
+        'ema_id': __parse_tournament_info_cell(rows[1]),
         'name': __parse_tournament_info_cell(rows[2]),
         'place': __parse_tournament_info_cell(rows[3]).replace('(see National Stats)',''),
         'country': __get_country_from_img_link(rows[3].find_all('td')[1]),
         'date': __parse_tournament_info_date(rows[4]),
         'players': __parse_tournament_info_cell(rows[5]),
-        'mers': __parse_tournament_info_cell(rows[6]),
-        'rules': __parse_tournament_info_cell(rows[7])
+        'days': days
     }
 
 def parse_tournament_results(soup):
@@ -53,23 +57,26 @@ def parse_tournament_results(soup):
         if first_name == "-" and last_name == "-":
             last_name = str(uuid.uuid4())
         # remove empty values
-        ema_id = row_ps[1].get_text(strip=True)
-        if ema_id == "-":
-            ema_id = None
+        ema_number = row_ps[1].get_text(strip=True)
+        if ema_number == "-":
+            ema_number = None
+        base_rank_text = row_ps[7].get_text(strip=True)
+        if base_rank_text == "-":
+            continue
         data.append({
-            'ema_id': ema_id,
+            'ema_number': ema_number,
             'last_name': last_name,
             'first_name': first_name,
             'country': __get_country_from_img_link(row_ps[4]),
-            'score': row_ps[6].get_text(strip=True)
+            'base_rank': int(base_rank_text)
         })
     return data
 
-def get_player_id(cur, ema_id, first_name, last_name):
-    if ema_id:
+def get_player_id(cur, ema_number, first_name, last_name):
+    if ema_number:
         cur.execute(
-            "select id from players where ema_id = %s;",
-            [ema_id])
+            "select id from players where ema_number = %s;",
+            [ema_number])
         player = cur.fetchone()
         if player:
             return player[0]
@@ -83,38 +90,38 @@ def get_player_id(cur, ema_id, first_name, last_name):
         return player[0]
     return None
 
-def create_player(cur, first_name, last_name, country, ema_id):
+def create_player(cur, first_name, last_name, country, ema_number):
     cur.execute(
-        """insert into players (ema_id, first_name, last_name, country) 
+        """insert into players (ema_number, first_name, last_name, country) 
         values (%s, %s, %s, %s) returning id""",
-        (ema_id, first_name, last_name, country))
+        (ema_number, first_name, last_name, country))
     return cur.fetchone()[0]
 
 def create_tournament(cur, tournament_info):
     cur.execute(
-        """insert into tournaments (number, name, place, country, date, players, mers, rules) 
-        values (%s, %s, %s, %s, %s, %s, %s, %s) returning id""",
-        (tournament_info['number'], tournament_info['name'], tournament_info['place'],
+        """insert into tournaments (ema_id, name, place, country, date, players, days) 
+        values (%s, %s, %s, %s, %s, %s, %s) returning id""",
+        (tournament_info['ema_id'], tournament_info['name'], tournament_info['place'],
          tournament_info['country'], tournament_info['date'],
-         tournament_info['players'], tournament_info['mers'], tournament_info['rules'])
+         tournament_info['players'], tournament_info['days'])
     )
     return cur.fetchone()[0]
 
-def insert_tournament_results(cur, tournament_id, player_scores):
-    for player in player_scores:
-        ema_id = player['ema_id']
+def insert_tournament_results(cur, tournament_id, player_base_ranks):
+    for player in player_base_ranks:
+        ema_number = player['ema_number']
         last_name = player['last_name']
         first_name = player['first_name']
         country = player['country']
-        score = player['score']
-        if score == "-" or score == "N/A":
+        base_rank = player['base_rank']
+        if base_rank == "-" or base_rank == "N/A":
             continue
-        player_id = get_player_id(cur, ema_id, first_name, last_name)
+        player_id = get_player_id(cur, ema_number, first_name, last_name)
         if player_id is None:
-            player_id = create_player(cur, first_name, last_name, country, ema_id)
-        cur.execute("""INSERT INTO tournament_results (tournament_id, player_id, score) 
+            player_id = create_player(cur, first_name, last_name, country, ema_number)
+        cur.execute("""INSERT INTO tournament_results (tournament_id, player_id, base_rank) 
                             VALUES (%s, %s, %s)""",
-                    (tournament_id, player_id, score)
+                    (tournament_id, player_id, base_rank)
                     )
 
 def save_tournament_page_to_db(file_path):
