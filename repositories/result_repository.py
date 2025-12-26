@@ -5,6 +5,6 @@ def get_player_results(cur, player_id):
                 join tournaments t on tr.tournament_id = t.id
                 where tr.player_id = %s
                 order by t.date
-                """
+                """,
         [player_id])
     return cur.fetchall()
