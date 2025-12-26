@@ -4,8 +4,13 @@ from math import ceil
 def calculate_mers_ranking(player_results, ranking_date):
     results = [get_weight_adjusted_result(result, ranking_date) for result in player_results]
     results = [result for result in results if result is not None] # filter
-    results.sort(key = lambda r: r[0], reverse = True) # sort on base rank
+    
     result_count = len(results)
+    
+    if result_count == 0:
+        return 0
+    
+    results.sort(key = lambda r: r[0], reverse = True) # sort on base rank
     for _ in range(result_count, 5): # add placeholder results
         results.append((0, 1, datetime.date.today()))
     part_a_count = 5 + ceil((result_count - 5) * 0.8)

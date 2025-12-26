@@ -1,13 +1,16 @@
 from math import ceil
 
 def calculate_rukrs_ranking(player_results, ranking_date, min_date):
-    results = []
-
     tournament_results = [
         (base_rank, date, days) \
         for (base_rank, date, _, days) \
         in player_results \
         if (date > min_date) & (date <= ranking_date)]
+    
+    if tournament_results.count == 0:
+        return 0
+
+    results = []
 
     for (base_rank, days) in tournament_results:
         for _ in range(0, days):

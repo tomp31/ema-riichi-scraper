@@ -1,6 +1,5 @@
-import psycopg
-
 from datetime import date
+import psycopg
 
 from dbconn import get_dbconn
 from repositories.player_repository import get_max_player_id

@@ -2,7 +2,6 @@ from datetime import date
 import psycopg
 
 from dbconn import get_dbconn
-
 from repositories.player_repository import get_max_player_id
 from repositories.result_repository import get_player_results
 from services.rukrs_service import calculate_rukrs_ranking

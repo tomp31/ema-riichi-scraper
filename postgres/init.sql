@@ -29,7 +29,7 @@ create table tournament_results(
     foreign key (player_id) references players(id) on delete cascade
 )
 
-create table player_ranking(
+create table mers_ranking(
     player_id int not null,
     ranking_date date,
     ranking numeric(6,2),
