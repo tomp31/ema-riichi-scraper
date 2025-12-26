@@ -1,12 +1,8 @@
 import datetime
 from math import ceil
 
-def calculate_mers_ranking(cur, player_id, ranking_date):
-    cur.execute(
-        'select tr.base_rank, t.weight, t.date from tournament_results tr join tournaments t on tr.tournament_id = t.id where tr.player_id = %s;',
-        [player_id])
-    results = cur.fetchall()
-    results = [get_weight_adjusted_result(result, ranking_date) for result in results]
+def calculate_mers_ranking(player_results, ranking_date):
+    results = [get_weight_adjusted_result(result, ranking_date) for result in player_results]
     results = [result for result in results if result is not None] # filter
     results.sort(key = lambda r: r[0], reverse = True) # sort on base rank
     result_count = len(results)
@@ -22,13 +18,10 @@ def calculate_mers_ranking(cur, player_id, ranking_date):
     part_b_weight_sum = sum([r[1] for r in part_b_results])
     part_b_numerator = sum([r[0] * r[1] for r in part_b_results])
     part_b_score = part_b_numerator / part_b_weight_sum
-    mers_ranking = (part_a_score + part_b_score) / 2
-    cur.execute(
-        'update players set mers_ranking = %s where id = %s',
-        [mers_ranking, player_id])
+    return (part_a_score + part_b_score) / 2
     
 def get_weight_adjusted_result(result, ranking_date):
-    (base_rank, weight, result_date) = result
+    (base_rank, weight, result_date, _) = result
     year = result_date.year
     month = result_date.month
     day = result_date.day

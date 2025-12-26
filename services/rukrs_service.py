@@ -1,12 +1,15 @@
 from math import ceil
 
-def calculate_rukrs_ranking(cur, player_id):
-    cur.execute(
-        'select tr.base_rank, t.days from tournament_results tr join tournaments t on tr.tournament_id = t.id where tr.player_id = %s;',
-        [player_id])
-    mers_results = cur.fetchall()
+def calculate_rukrs_ranking(player_results, ranking_date, min_date):
     results = []
-    for (base_rank, days) in mers_results:
+
+    tournament_results = [
+        (base_rank, date, days) \
+        for (base_rank, date, _, days) \
+        in player_results \
+        if (date > min_date) & (date <= ranking_date)]
+
+    for (base_rank, days) in tournament_results:
         for _ in range(0, days):
             results.append(base_rank)
     results.sort(reverse = True)
@@ -19,7 +22,4 @@ def calculate_rukrs_ranking(cur, player_id):
     part_b_results = results[:part_b_count]
     part_a_score = sum(part_a_results) / part_a_count
     part_b_score = sum(part_b_results) / part_b_count
-    rukrs_ranking = (part_a_score + part_b_score) / 2
-    cur.execute(
-        'update players set rukrs_ranking = %s where id = %s',
-        [rukrs_ranking, player_id])
+    return (part_a_score + part_b_score) / 2
