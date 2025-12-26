@@ -1,12 +1,12 @@
 import datetime
 from math import ceil
 
-def calculate_mers_ranking(cur, player_id):
+def calculate_mers_ranking(cur, player_id, ranking_date):
     cur.execute(
         'select tr.base_rank, t.weight, t.date from tournament_results tr join tournaments t on tr.tournament_id = t.id where tr.player_id = %s;',
         [player_id])
     results = cur.fetchall()
-    results = [get_weight_adjusted_result(result) for result in results]
+    results = [get_weight_adjusted_result(result, ranking_date) for result in results]
     results = [result for result in results if result is not None] # filter
     results.sort(key = lambda r: r[0], reverse = True) # sort on base rank
     result_count = len(results)
@@ -32,9 +32,9 @@ def get_weight_adjusted_result(result, ranking_date):
     year = result_date.year
     month = result_date.month
     day = result_date.day
-    if datetime.date(year + 2, month, day) >= ranking_date:
+    if datetime.date(year + 2, month, day) <= ranking_date:
         return None
-    elif datetime.date(year + 1, month, day) >= ranking_date:
+    elif datetime.date(year + 1, month, day) <= ranking_date:
         return (base_rank, weight / 2, result_date)
     else:
         return result
