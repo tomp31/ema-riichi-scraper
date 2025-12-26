@@ -16,8 +16,8 @@ create table players(
     first_name text,
     last_name text,
     country text,
-    mers_ranking numeric(6,2) null,
-    rukrs_ranking numeric(6,2) null
+    mers_ranking numeric(6,2),
+    rukrs_ranking numeric(6,2)
 );
 
 create table tournament_results(
@@ -26,5 +26,13 @@ create table tournament_results(
     base_rank int,
     primary key (tournament_id, player_id),
     foreign key (tournament_id) references tournaments(id) on delete cascade,
+    foreign key (player_id) references players(id) on delete cascade
+)
+
+create table player_ranking(
+    player_id int not null,
+    ranking_date date,
+    ranking numeric(6,2),
+    primary key (player_id, ranking_date),
     foreign key (player_id) references players(id) on delete cascade
 )

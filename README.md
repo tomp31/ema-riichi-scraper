@@ -58,6 +58,6 @@ python save_tournaments.py 285 363
 Running the following scripts sets the corresponding columns on the players table in the database.
 
 ```shell
-python calculate_mers.py
-python calculate_rukrs.py
+python calculate_current_mers.py
+python calculate_current_rukrs.py
 ```

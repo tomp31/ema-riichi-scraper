@@ -1,12 +1,13 @@
 import argparse
-import os
-
 import bs4
 import psycopg
 import uuid
+
 from dateutil import parser
 
-DBCONN = os.getenv("DBCONN", "dbname=riichi user=postgres password=admin")  # Default value if not set
+from dbconn import get_dbconn
+
+DBCONN = get_dbconn()
 
 def load_html(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:

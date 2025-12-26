@@ -1,13 +1,4 @@
 from math import ceil
-import os
-
-import psycopg
-
-DBCONN = os.getenv("DBCONN", "dbname=riichi user=postgres password=admin")  # Default value if not set
-
-def get_max_player_id(cur):
-    cur.execute("select max(id) from players")
-    return cur.fetchone()[0]
 
 def calculate_rukrs_ranking(cur, player_id):
     cur.execute(
@@ -32,12 +23,3 @@ def calculate_rukrs_ranking(cur, player_id):
     cur.execute(
         'update players set rukrs_ranking = %s where id = %s',
         [rukrs_ranking, player_id])
-  
-if __name__ == '__main__':
-    with psycopg.connect(DBCONN) as conn:
-        with conn.cursor() as cur:    
-            max_player_id = get_max_player_id(cur)
-            for player_id in range(1, max_player_id + 1):
-                print(f"Calculating RUKRS ranking for player id {player_id}")
-                calculate_rukrs_ranking(cur, player_id)
-
