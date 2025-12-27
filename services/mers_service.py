@@ -27,12 +27,27 @@ def calculate_mers_ranking(player_results, ranking_date):
     
 def get_weight_adjusted_result(result, ranking_date):
     (base_rank, result_date, weight, _) = result
-    year = result_date.year
-    month = result_date.month
-    day = result_date.day
-    if datetime.date(year + 2, month, day) <= ranking_date:
+    if get_dropoff_date(result_date) <= ranking_date | result_date > ranking_date :
         return None
-    elif datetime.date(year + 1, month, day) <= ranking_date:
+    elif get_weight_halved_date(result_date) <= ranking_date:
         return (base_rank, weight / 2)
     else:
         return (base_rank, weight)
+    
+def get_dropoff_date(result_date):
+    return add_years_to_mers_result(result_date, 2)
+
+def get_weight_halved_date(result_date):
+    return add_years_to_mers_result(result_date, 1)
+
+def add_years_to_mers_result(result_date, years_to_add):
+    year = result_date.year
+    month = result_date.month
+    day = result_date.day
+    modified_date = datetime.date(year + years_to_add, month, day)
+    if (is_in_covid_freeze(modified_date)): # decay delayed by 2 years during COVID freeze
+        modified_date = datetime.date(year + years_to_add + 2, month, day)
+
+def is_in_covid_freeze(date):
+    return (date >= datetime.date(2020, 4, 1) & date < datetime.date(2022, 4, 1))
+
