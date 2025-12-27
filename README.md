@@ -40,7 +40,7 @@ If needed, add a `DBCONN` environment variable or modify the `DBCONN` values sto
 Download tournament pages for offline use/scraping:
 
 ```shell
-python download_tournaments.py 285 363
+python download_tournaments.py 218 363
 ```
 
 There is some additional code to fix some files so that the date can be parsed correctly.
@@ -50,7 +50,7 @@ There is some additional code to fix some files so that the date can be parsed c
 To extract data from downloaded pages and store it in PostgreSQL:
 
 ```shell
-python save_tournaments.py 285 363
+python save_tournaments.py 218 363
 ```
 
 ### 3️⃣ Run scripts to calculate rankings

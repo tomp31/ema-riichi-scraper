@@ -27,7 +27,7 @@ create table tournament_results(
     primary key (tournament_id, player_id),
     foreign key (tournament_id) references tournaments(id) on delete cascade,
     foreign key (player_id) references players(id) on delete cascade
-)
+);
 
 create table mers_ranking(
     player_id int not null,
@@ -35,4 +35,4 @@ create table mers_ranking(
     ranking numeric(6,2),
     primary key (player_id, ranking_date),
     foreign key (player_id) references players(id) on delete cascade
-)
+);
