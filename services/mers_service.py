@@ -26,13 +26,13 @@ def calculate_mers_ranking(player_results, ranking_date):
     return (part_a_score + part_b_score) / 2
     
 def get_weight_adjusted_result(result, ranking_date):
-    (base_rank, weight, result_date, _) = result
+    (base_rank, result_date, weight, _) = result
     year = result_date.year
     month = result_date.month
     day = result_date.day
     if datetime.date(year + 2, month, day) <= ranking_date:
         return None
     elif datetime.date(year + 1, month, day) <= ranking_date:
-        return (base_rank, weight / 2, result_date)
+        return (base_rank, weight / 2)
     else:
-        return result
+        return (base_rank, weight)

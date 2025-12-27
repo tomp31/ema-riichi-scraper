@@ -28,7 +28,7 @@ if __name__ == '__main__':
                     if cur.fetchone() is None:
                         cur.execute("""
                                     insert into mers_ranking (player_id, ranking_date, ranking)
-                                    values %s, %s, %s
+                                    values (%s, %s, %s)
                                     """, [player_id, ranking_date, mers_ranking])
                     else:
                         cur.execute("""
@@ -37,4 +37,5 @@ if __name__ == '__main__':
                                     where player_id = %s
                                     and ranking_date = %s
                                     """, [mers_ranking, player_id, ranking_date])
+                conn.commit()
                 ranking_date -= timedelta(days = 7)
